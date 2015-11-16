@@ -108,8 +108,7 @@ function lock_acquire($name, $timeout = 30.0) {
 
   // Insure that the timeout is at least 1 ms.
   $timeout = max($timeout, 0.001);
-  list($usec, $sec) = explode(' ', microtime());
-  $expire = (float)$usec + (float)$sec + $timeout;
+  $expire = microtime(TRUE) + $timeout;
   $collection = mongodb_collection(variable_get('mongodb_semaphore', 'semaphore'));
   if (isset($locks[$name])) {
     // Try to extend the expiration of a lock we already acquired.
@@ -171,8 +170,7 @@ function lock_may_be_available($name) {
     return TRUE;
   }
   $expire = (float) $lock['expire'];
-  list($usec, $sec) = explode(' ', microtime());
-  $now = (float)$usec + (float)$sec;
+  $now = microtime(TRUE);
   if ($now > $lock['expire']) {
     // We check two conditions to prevent a race condition where another
     // request acquired the lock and set a new expire time.  We add a small
