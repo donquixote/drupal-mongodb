@@ -1,0 +1,5 @@
+name = MongoDB Lock
+description = Locking framework implementation for MongoDB.
+package = MongoDB
+core = 6.x
+dependencies[] = mongodb
