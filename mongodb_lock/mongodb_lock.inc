@@ -69,7 +69,7 @@ include_once dirname(__FILE__) . '/../mongodb.module';
 /**
  * Initialize the locking system.
  */
-function lock_init() {
+function lock_initialize() {
   global $locks;
 
   $locks = array();
