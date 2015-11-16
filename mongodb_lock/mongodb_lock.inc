@@ -286,7 +286,7 @@ function lock_release_all($lock_id = NULL) {
   }
 
   mongodb_collection(variable_get('mongodb_semaphore', 'semaphore'))
-    ->remove(array('value' => _lock_id()), array('safe' => 1));
+    ->remove(array('value' => $lock_id), array('safe' => 1));
 }
 
 /**
