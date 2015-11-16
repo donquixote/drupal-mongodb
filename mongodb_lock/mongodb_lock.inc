@@ -2,6 +2,12 @@
 /**
  * @file
  * MongoDB implementation of a locking mechanism.
+ *
+ * Alternative to includes/lock.inc.
+ * Inspired by memcache-lock.inc, in http://drupal.org/project/memcache
+ *
+ * The file will be included from within settings.php, before modules are
+ * included. Therefore the mongodb.module file needs to be included manually.
  */
 
 include_once dirname(__FILE__) . '/../mongodb.module';
@@ -70,7 +76,9 @@ function lock_init() {
 }
 
 /**
- * Helper function to get this request's unique id.
+ * Provides a lock id that is unique to the current request.
+ *
+ * @return string
  */
 function _lock_id() {
   static $lock_id;
@@ -87,11 +95,12 @@ function _lock_id() {
 /**
  * Acquire (or renew) a lock, but do not block if it fails.
  *
- * @param $name
+ * @param string $name
  *   The name of the lock.
- * @param $timeout
- *   A number of seconds (float) before the lock expires.
- * @return
+ * @param float $timeout
+ *   (optional) A number of seconds before the lock expires (minimum of 1 ms).
+ *
+ * @return bool
  *   TRUE if the lock was acquired, FALSE if it failed.
  */
 function lock_acquire($name, $timeout = 30.0) {
@@ -149,9 +158,10 @@ function lock_acquire($name, $timeout = 30.0) {
  *
  * If an existing lock has expired, it is removed.
  *
- * @param $name
+ * @param string $name
  *   The name of the lock.
- * @return
+ *
+ * @return bool
  *   TRUE if there is no lock or it was removed, FALSE otherwise.
  */
 function lock_may_be_available($name) {
@@ -189,11 +199,12 @@ function lock_may_be_available($name) {
  * that are acquired very frequently, since the lock is likely to be acquired
  * again by a different request during the sleep().
  *
- * @param $name
+ * @param string $name
  *   The name of the lock.
- * @param $delay
- *   The maximum number of seconds to wait, as an integer.
- * @return
+ * @param int $delay
+ *   (optional) The maximum number of seconds to wait, as an integer.
+ *
+ * @return bool
  *   TRUE if the lock holds, FALSE if it is available.
  */
 function lock_wait($name, $delay = 30) {
@@ -248,7 +259,7 @@ function lock_wait($name, $delay = 30) {
  *
  * This will release the named lock if it is still held by the current request.
  *
- * @param $name
+ * @param string $name
  *   The name of the lock.
  */
 function lock_release($name) {
@@ -262,6 +273,9 @@ function lock_release($name) {
 
 /**
  * Release all previously acquired locks.
+ *
+ * @param string $lock_id
+ *   (optional) Lock id for which to release all locks.
  */
 function lock_release_all($lock_id = NULL) {
   global $locks;
