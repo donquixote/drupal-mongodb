@@ -113,7 +113,7 @@ function lock_acquire($name, $timeout = 30.0) {
   if (isset($locks[$name])) {
     // Try to extend the expiration of a lock we already acquired.
     $where = array('name' => $name, 'value' => _lock_id());
-    $result = $collection->update($where, array('$set' => array('expire' => $expire)), array('safe' => 1));
+    $result = $collection->update($where, array('$set' => array('expire' => $expire)));
     if (!isset($result['updatedExisting']) || $result['updatedExisting'] != 1) {
       // The lock was broken.
       unset($locks[$name]);
@@ -131,7 +131,7 @@ function lock_acquire($name, $timeout = 30.0) {
     // We always want to do this code at least once.
     do {
       try {
-        $collection->insert($new_lock, array('safe' => 1));
+        $collection->insert($new_lock);
         // We track all acquired locks in the global variable.
         $locks[$name] = TRUE;
         // We never need to try again.
@@ -180,7 +180,7 @@ function lock_may_be_available($name) {
       'value'  => $lock['value'],
       'expire' => array('$lte' => 0.0001 + $expire)
     );
-    $result = $collection->remove($conditions, array('justOne' => 1, 'safe' => 1));
+    $result = $collection->remove($conditions, array('justOne' => 1));
     if (isset($result['ok']) && $result['ok'] == 1) {
       return TRUE;
     }
@@ -264,9 +264,9 @@ function lock_release($name) {
   global $locks;
 
   unset($locks[$name]);
-  
+
   mongodb_collection(variable_get('mongodb_semaphore', 'semaphore'))
-    ->remove(array('name' => $name, 'value' => _lock_id()), array('justOne' => 1, 'safe' => 1));
+    ->remove(array('name' => $name, 'value' => _lock_id()), array('justOne' => 1));
 }
 
 /**
@@ -284,7 +284,7 @@ function lock_release_all($lock_id = NULL) {
   }
 
   mongodb_collection(variable_get('mongodb_semaphore', 'semaphore'))
-    ->remove(array('value' => $lock_id), array('safe' => 1));
+    ->remove(array('value' => $lock_id));
 }
 
 /**
