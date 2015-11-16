@@ -217,15 +217,15 @@ function lock_wait($name, $delay = 30) {
     $sleep_step  = variable_get('mongodb_lock_sleep_step', 25000);
     $sleep_max   = variable_get('mongodb_lock_sleep_max', 500000);
   }
-  
+
   // Pause the process for short periods between calling
   // lock_may_be_available(). This prevents hitting the database with constant
   // database queries while waiting, which could lead to performance issues.
   // However, if the wait period is too long, there is the potential for a
   // large number of processes to be blocked waiting for a lock, especially
   // if the item being rebuilt is commonly requested. To address both of these
-  // concerns, begin waiting for $sleep_start, then add $sleep_step to 
-  // the wait period each time until it reaches $sleep_max. After this point 
+  // concerns, begin waiting for $sleep_start, then add $sleep_step to
+  // the wait period each time until it reaches $sleep_max. After this point
   // polling will continue every $sleep_max until $delay is reached.
 
   // $delay is passed in seconds, but we will be using usleep(), which takes
